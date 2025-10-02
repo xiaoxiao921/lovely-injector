@@ -3,6 +3,7 @@ use std::path::Path;
 use crop::Rope;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+use tracing::warn;
 use wildmatch::WildMatch;
 
 use super::InsertPosition;
@@ -44,7 +45,7 @@ impl PatternPatch {
             .map(WildMatch::new)
             .collect_vec();
         if wm_lines.is_empty() {
-            log::warn!(
+            warn!(
                 "Pattern on target '{target}' for pattern patch from {} has no lines",
                 path.display()
             );
@@ -81,7 +82,7 @@ impl PatternPatch {
         }
 
         if matches.is_empty() {
-            log::warn!(
+            warn!(
                 "Pattern '{}' on target '{target}' for pattern patch from {} resulted in no matches",
                 self.pattern.escape_debug(),
                 path.display(),
@@ -102,7 +103,7 @@ impl PatternPatch {
                     format!("Pattern '{pattern}' on target '{target}' for pattern patch from {} resulted in {found_matches} matches, wanted {wanted_matches}", path.display())
                 };
                 for line in warn_msg.lines() {
-                    log::warn!("{}", line)
+                    warn!("{}", line)
                 }
             }
             if matches.len() < times {
@@ -110,7 +111,7 @@ impl PatternPatch {
             }
             if matches.len() > times {
                 warn_pattern_mismatch(&self.pattern, target, matches.len(), times, path);
-                log::warn!("Ignoring excess matches");
+                warn!("Ignoring excess matches");
                 matches.truncate(times);
             }
         }
